@@ -1,3 +1,4 @@
+import React from 'react';
 import { IconMap } from '../util/types';
 
 interface IconMapProps {

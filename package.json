@@ -4,12 +4,20 @@
   "description": "A React component to render a file explorer with features similar to VSCode.",
   "main": "dist/index.js",
   "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/singh-avinash-2000/react-file-tree.git"
   },
-  "keywords": ["react", "file", "explorer", "tree", "component", "vscode"],
+  "type": "module",
+  "keywords": [
+    "react",
+    "file",
+    "explorer",
+    "tree",
+    "component",
+    "vscode"
+  ],
   "author": "Avinash Singh",
   "license": "MIT",
   "dependencies": {

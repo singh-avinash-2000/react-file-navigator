@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { VscCollapseAll, VscNewFile, VscFolderOpened } from 'react-icons/vsc';
 import { File, Folder, ExplorerProps } from '../util/types';
 import { addNewNode, collapseAllNodes, deleteNodeById, findNodeById, generateRandomIntID } from '../util/methods';
@@ -10,6 +10,7 @@ const Explorer: React.FC<ExplorerProps> = ({
 	setTree,
 	config = { label: 'File Tree', rename: 'Both', delete: 'Both', fontColor: 'black' },
 	iconMap,
+	onFileSelectionChange,
 }) => {
 	const { currentlySelectedNode, setCurrentlySelectedNode, setIsRenameSelected, setRenameNodeId } = useExplorerContext();
 
@@ -60,6 +61,10 @@ const Explorer: React.FC<ExplorerProps> = ({
 		deleteNodeById(tree, nodeId);
 		setTree([...tree]);
 	};
+
+	useEffect(() => {
+		onFileSelectionChange(currentlySelectedNode);
+	}, [currentlySelectedNode]);
 
 	return (
 		<div style={{ color: config.fontColor }}>

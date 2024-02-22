@@ -27,6 +27,7 @@ export interface ExplorerProps {
 	setTree: React.Dispatch<React.SetStateAction<Tree>>;
 	config?: ExplorerConfig;
 	iconMap: IconMap;
+	onFileSelectionChange: (node: File | Folder | null) => any;
 }
 
 export interface ExplorerConfig {

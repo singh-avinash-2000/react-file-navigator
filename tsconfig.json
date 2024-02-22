@@ -1,13 +1,24 @@
 {
-    "compilerOptions": {
-        "target": "ES5",
-        "module": "CommonJS",
-        "jsx": "preserve",
-        "declaration": true,
-        "outDir": "./dist",
-        "lib": ["es2015", "dom"],
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
-    },
-    "include": ["src"]
+"compilerOptions": {
+    "target": "ES5",
+    "module": "ESNext",
+    "skipDefaultLibCheck": true,
+    "noUnusedParameters": true,
+    "lib": ["dom", "es2015", "es2017"],
+    "jsx": "preserve",
+    "declaration": true,
+    "declarationDir": "./dist/types",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,    
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "rootDirs": ["src"],
+},
+"include": ["./**/*.ts", "./**/*.tsx"],
+"exclude": ["node_modules", "dist"]
 }
+
+
