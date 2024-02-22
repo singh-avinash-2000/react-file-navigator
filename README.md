@@ -127,8 +127,6 @@ export default FileExplorer;
     delete? ('Delete' | 'CMD + Backspace' | 'Both'): Action for deleting files/folders.
     fontColor? (string): Font color for the file explorer.
     accentColor? (string): Accent color for the file explorer.
-    License
-    This project is licensed under the MIT License. See the LICENSE file for details.
 
 ## License
 
