@@ -8,7 +8,7 @@ import { useExplorerContext } from '../context/useExplorerContext';
 const Explorer: React.FC<ExplorerProps> = ({
 	tree,
 	setTree,
-	config = { label: 'File Tree', rename: 'Both', delete: 'Both', fontColor: 'black' },
+	config = { label: 'File Tree', rename: 'Both', delete: 'Both', fontColor: 'black', accentColor: 'lavendar' },
 	iconMap,
 	onFileSelectionChange,
 }) => {

@@ -29,7 +29,7 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 	};
 
 	const handleDoubleClick = (node: File | Folder) => {
-		if (config.rename === 'Both' || config.rename === 'DoubleClick') {
+		if (config.rename === 'Both' || config.rename === 'DoubleClick' || !config.rename) {
 			setIsRenameSelected(true);
 			setCurrentlySelectedNode(node);
 			setRenameNodeId(node.id);
@@ -68,17 +68,17 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 	};
 
 	const enableRenameAndDeleteForSelectedNode = (e: React.KeyboardEvent<HTMLDivElement>, node: File | Folder) => {
-		if (e.key === 'Enter' && !isRenameSelected && (config.rename === 'Both' || config.rename === 'Enter')) {
+		if (e.key === 'Enter' && !isRenameSelected && (!config.rename || config.rename === 'Both' || config.rename === 'Enter')) {
 			setIsRenameSelected(true);
 			setCurrentlySelectedNode(node);
 			setRenameNodeId(node.id);
 		}
 
-		if (e.key === 'Delete' && (config.delete === 'Both' || config.delete === 'Delete')) {
+		if (e.key === 'Delete' && (!config.delete || config.delete === 'Both' || config.delete === 'Delete')) {
 			deleteNode(node.id);
 		}
 
-		if ((e.metaKey || e.ctrlKey) && e.keyCode === 8 && (config.delete === 'Both' || config.delete === 'CMD + Backspace')) {
+		if ((e.metaKey || e.ctrlKey) && e.keyCode === 8 && (!config.delete || config.delete === 'Both' || config.delete === 'CMD + Backspace')) {
 			deleteNode(node.id);
 		}
 	};
@@ -91,7 +91,6 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 	};
 
 	const handleBlur = (idx: number) => {
-		console.log('ON BLUR');
 		checkForDeleteCondition(idx);
 		renameNode(idx);
 		setRenameNodeId(null);
@@ -115,7 +114,7 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 								cursor: 'pointer',
 								display: 'flex',
 								width: '100%',
-								...(currentlySelectedNode?.id === node.id ? { backgroundColor: '#bcbcb7' } : {}),
+								...(currentlySelectedNode?.id === node.id ? { backgroundColor: config.accentColor ? config.accentColor : 'lavender' } : {}),
 							}}
 							tabIndex={0}
 							onClick={() => handleSingleClick(node, index)}

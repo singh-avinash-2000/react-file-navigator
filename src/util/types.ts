@@ -35,5 +35,6 @@ export interface ExplorerConfig {
 	rename?: 'DoubleClick' | 'Enter' | 'Both';
 	delete?: 'Delete' | 'CMD + Backspace' | 'Both';
 	fontColor?: string;
+	accentColor?: string;
 	// dragDrop?: boolean;
 }
