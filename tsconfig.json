@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "CommonJS",
+        "jsx": "preserve",
+        "declaration": true,
+        "outDir": "./dist",
+        "lib": ["es2015", "dom"],
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": ["src"]
+}
