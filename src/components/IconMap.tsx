@@ -6,9 +6,9 @@ interface IconMapProps {
 	iconMap: IconMap;
 }
 
-const IconMap: React.FC<IconMapProps> = ({ iconName, iconMap }) => {
+const IconMapComponent: React.FC<IconMapProps> = ({ iconName, iconMap }) => {
 	const icon = iconMap[iconName] || iconMap.default;
 	return <div>{icon}</div>;
 };
 
-export default IconMap;
+export default IconMapComponent;

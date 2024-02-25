@@ -1,2 +1,2 @@
 export { default as Explorer } from './App';
-export { Tree, IconMap, File, Folder, ExplorerProps, ExplorerConfig } from './util/types';
+export type { Tree, IconMap, FileNode, FolderNode, ExplorerProps, ExplorerConfig, TreeNode } from './util/types';

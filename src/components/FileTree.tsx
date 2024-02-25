@@ -1,34 +1,38 @@
 import React, { useEffect, useRef } from 'react';
 import IconMapComponent from './IconMap';
 import { useExplorerContext } from '../context/useExplorerContext';
-import { Folder, Tree, File, ExplorerConfig, IconMap } from '../util/types';
+import { FolderNode, Tree, FileNode, ExplorerConfig, IconMap, TreeNode } from '../util/types';
 
 interface FileTreeProps {
 	tree: Tree;
-	updateNodeDetails: (newNodeData: File | Folder) => void;
+	updateNodeDetails: (newNodeData: TreeNode) => void;
 	deleteNode: (idx: string) => void;
 	config: ExplorerConfig;
 	iconMap: IconMap;
+	handleDrop: (e: any, node: TreeNode) => void;
+	clickedDiv: string;
+	setClickedDiv: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode, config, iconMap }) => {
+const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode, config, iconMap, handleDrop, clickedDiv, setClickedDiv }) => {
 	const { setCurrentlySelectedNode, renameNodeId, isRenameSelected, currentlySelectedNode, setRenameNodeId, setIsRenameSelected } =
 		useExplorerContext();
 
 	const renameInputRef = useRef<HTMLInputElement | null>(null);
 
-	const handleSingleClick = (node: File | Folder, idx: number) => {
+	const handleSingleClick = (node: TreeNode, idx: number) => {
 		if (renameNodeId === node.id) return;
 		setCurrentlySelectedNode(node);
+		setClickedDiv(node.id);
 		if (node.type === 'File') return;
 
-		const currentNode = tree[idx] as Folder;
+		const currentNode = tree[idx] as FolderNode;
 		currentNode.expanded = !node.expanded;
 		currentNode.icon = node.expanded ? 'folderExpanded' : 'folderCollapsed';
 		updateNodeDetails(tree[idx]);
 	};
 
-	const handleDoubleClick = (node: File | Folder) => {
+	const handleDoubleClick = (node: TreeNode) => {
 		if (config.rename === 'Both' || config.rename === 'DoubleClick' || !config.rename) {
 			setIsRenameSelected(true);
 			setCurrentlySelectedNode(node);
@@ -49,7 +53,7 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 		tree[idx].filePath = filePath.join('/');
 		delete tree[idx].new;
 		if (tree[idx].type === 'File') {
-			const ref = tree[idx] as File;
+			const ref = tree[idx] as FileNode;
 			const extension = fileNameBrokenArray[fileNameBrokenArray.length - 1];
 			ref.extension = extension;
 			ref.icon = extension;
@@ -58,6 +62,7 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 		setRenameNodeId(null);
 		setIsRenameSelected(false);
 		updateNodeDetails(tree[idx]);
+		setClickedDiv('');
 	};
 
 	const handleFileRename = (event: React.KeyboardEvent<HTMLInputElement | HTMLDivElement>, idx: number) => {
@@ -67,7 +72,7 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 		}
 	};
 
-	const enableRenameAndDeleteForSelectedNode = (e: React.KeyboardEvent<HTMLDivElement>, node: File | Folder) => {
+	const enableRenameAndDeleteForSelectedNode = (e: React.KeyboardEvent<HTMLDivElement>, node: TreeNode) => {
 		if (e.key === 'Enter' && !isRenameSelected && (!config.rename || config.rename === 'Both' || config.rename === 'Enter')) {
 			setIsRenameSelected(true);
 			setCurrentlySelectedNode(node);
@@ -97,6 +102,15 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 		setIsRenameSelected(false);
 	};
 
+	const handleDragStart = (e: any, node: TreeNode) => {
+		e.stopPropagation();
+		e.dataTransfer.setData('application/json', JSON.stringify(node));
+	};
+
+	const handleDragOver = (e: any) => {
+		e.preventDefault();
+	};
+
 	useEffect(() => {
 		if (isRenameSelected) {
 			renameInputRef.current?.focus();
@@ -105,18 +119,25 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 	}, [isRenameSelected]);
 
 	return (
-		<div style={{ fontSize: '16px' }}>
-			{tree.map((node: File | Folder, index: number) => {
+		<div draggable>
+			{tree.map((node: TreeNode, index: number) => {
 				return (
-					<div style={{ marginLeft: 5 }} key={node.id}>
+					<div
+						style={{ paddingInline: 5, paddingBlock: 3, borderLeft: '1px dotted gray' }}
+						key={node.id}
+						draggable
+						onDragStart={(e) => handleDragStart(e, node)}
+						onDragOver={(e) => handleDragOver(e)}
+						onDrop={(e) => handleDrop(e, node)}>
 						<div
 							style={{
 								cursor: 'pointer',
 								display: 'flex',
 								width: '100%',
-								...(currentlySelectedNode?.id === node.id ? { backgroundColor: config.accentColor ? config.accentColor : 'lavender' } : {}),
+								...(clickedDiv === node.id ? { border: '1px solid blue' } : {}),
+								...(currentlySelectedNode?.id === node.id ? { backgroundColor: config.accentColor ? `${config.accentColor}` : 'lavender' } : {}),
 							}}
-							tabIndex={0}
+							tabIndex={1}
 							onClick={() => handleSingleClick(node, index)}
 							onDoubleClick={() => handleDoubleClick(node)}
 							onKeyDown={(e) => enableRenameAndDeleteForSelectedNode(e, node)}>
@@ -150,6 +171,9 @@ const FileTree: React.FC<FileTreeProps> = ({ tree, updateNodeDetails, deleteNode
 											deleteNode={deleteNode}
 											config={config}
 											iconMap={iconMap}
+											handleDrop={handleDrop}
+											clickedDiv={clickedDiv}
+											setClickedDiv={setClickedDiv}
 										/>
 									)}
 								</div>

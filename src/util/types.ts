@@ -1,25 +1,31 @@
-export type Tree = (File | Folder)[];
-export type IconMap = { default: React.ReactNode; [extension: string]: React.ReactNode };
+export type Tree = TreeNode[];
+export type IconMap = {
+	default: React.ReactNode;
+	folderCollapsed: React.ReactNode;
+	folderExpanded: React.ReactNode;
+	[extension: string]: React.ReactNode;
+};
+export type TreeNode = FileNode | FolderNode;
 
-export interface File {
+export interface FileNode {
 	id: string;
 	type: 'File';
 	filePath: string;
 	extension: string;
 	icon: string;
 	name: string;
-	new?: boolean;
+	[key: string]: any;
 }
 
-export interface Folder {
+export interface FolderNode {
 	id: string;
 	type: 'Folder';
 	filePath: string;
 	expanded: boolean;
 	icon: 'folderCollapsed' | 'folderExpanded';
 	name: string;
-	children: (File | Folder)[];
-	new?: boolean;
+	children: TreeNode[];
+	[key: string]: any;
 }
 
 export interface ExplorerProps {
@@ -27,7 +33,7 @@ export interface ExplorerProps {
 	setTree: React.Dispatch<React.SetStateAction<Tree>>;
 	config?: ExplorerConfig;
 	iconMap: IconMap;
-	onFileSelectionChange: (node: File | Folder | null) => any;
+	onFileSelectionChange: (node: TreeNode | null) => any;
 }
 
 export interface ExplorerConfig {
@@ -36,5 +42,9 @@ export interface ExplorerConfig {
 	delete?: 'Delete' | 'CMD + Backspace' | 'Both';
 	fontColor?: string;
 	accentColor?: string;
-	// dragDrop?: boolean;
+	headerFontSize?: string;
+	headerIconSize?: string;
+	fontSize?: string;
+	iconSize?: string;
+	disableActions?: boolean;
 }

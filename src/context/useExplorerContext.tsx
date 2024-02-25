@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Folder, File } from '../util/types';
+import { TreeNode } from '../util/types';
 
 interface ExplorerContextProps {
-	currentlySelectedNode: File | Folder | null;
-	setCurrentlySelectedNode: React.Dispatch<React.SetStateAction<File | Folder | null>>;
+	currentlySelectedNode: TreeNode | null;
+	setCurrentlySelectedNode: React.Dispatch<React.SetStateAction<TreeNode | null>>;
 	isRenameSelected: boolean;
 	setIsRenameSelected: React.Dispatch<React.SetStateAction<boolean>>;
 	renameNodeId: string | null;
@@ -22,7 +22,7 @@ const defaultValue: ExplorerContextProps = {
 const ExplorerContext = createContext(defaultValue);
 
 export const ExplorerContextProvider = ({ children }: { children: any }) => {
-	const [currentlySelectedNode, setCurrentlySelectedNode] = useState<File | Folder | null>(null);
+	const [currentlySelectedNode, setCurrentlySelectedNode] = useState<TreeNode | null>(null);
 	const [isRenameSelected, setIsRenameSelected] = useState<boolean>(false);
 	const [renameNodeId, setRenameNodeId] = useState<string | null>(null);
 

@@ -1,7 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { VscCollapseAll, VscNewFile, VscFolderOpened } from 'react-icons/vsc';
-import { File, Folder, ExplorerProps } from '../util/types';
-import { addNewNode, collapseAllNodes, deleteNodeById, findNodeById, generateRandomIntID } from '../util/methods';
+import { FileNode, FolderNode, ExplorerProps, TreeNode } from '../util/types';
+import {
+	addNewNode,
+	collapseAllNodes,
+	deleteNodeById,
+	findNodeById,
+	findParentNodeById,
+	generateRandomIntID,
+	getTargetNodeBasedOnType,
+} from '../util/methods';
 import FileTree from './FileTree';
 import { useExplorerContext } from '../context/useExplorerContext';
 
@@ -13,9 +21,11 @@ const Explorer: React.FC<ExplorerProps> = ({
 	onFileSelectionChange,
 }) => {
 	const { currentlySelectedNode, setCurrentlySelectedNode, setIsRenameSelected, setRenameNodeId } = useExplorerContext();
+	const containerRef = useRef<any>(null);
+	const [clickedDiv, setClickedDiv] = useState<string>('');
 
 	const createNewNode = (type: 'File' | 'Folder') => {
-		var newNode: Folder | File;
+		var newNode: TreeNode;
 		if (type === 'Folder') {
 			newNode = {
 				id: generateRandomIntID(),
@@ -26,7 +36,7 @@ const Explorer: React.FC<ExplorerProps> = ({
 				children: [],
 				icon: 'folderCollapsed',
 				new: true,
-			} as Folder;
+			} as FolderNode;
 		} else {
 			newNode = {
 				id: generateRandomIntID(),
@@ -36,7 +46,7 @@ const Explorer: React.FC<ExplorerProps> = ({
 				icon: 'default',
 				name: '',
 				new: true,
-			} as File;
+			} as FileNode;
 		}
 
 		setCurrentlySelectedNode(newNode);
@@ -51,7 +61,7 @@ const Explorer: React.FC<ExplorerProps> = ({
 		setTree([...updatedNodes]);
 	};
 
-	const updateNodeDetails = (newNodeData: File | Folder) => {
+	const updateNodeDetails = (newNodeData: TreeNode) => {
 		let nodeDetails = findNodeById(tree, currentlySelectedNode?.id!);
 		nodeDetails = { ...newNodeData };
 		setTree([...tree]);
@@ -62,32 +72,111 @@ const Explorer: React.FC<ExplorerProps> = ({
 		setTree([...tree]);
 	};
 
+	const iconStyle = useMemo(
+		() => ({ cursor: 'pointer', ...(config.headerIconSize ? { fontSize: config.headerIconSize } : { fontSize: 20 }) }),
+		[config.headerIconSize]
+	);
+
+	const handleDrop = (e: any, node: TreeNode) => {
+		e.stopPropagation();
+		e.preventDefault();
+
+		const draggedNode = JSON.parse(e.dataTransfer.getData('application/json'));
+		const draggedNodeTo = getTargetNodeBasedOnType(node, tree);
+		const draggedNodeFrom = findParentNodeById(tree, draggedNode.id);
+		if (node.id === draggedNodeFrom?.id) return;
+
+		if (draggedNodeFrom && draggedNodeFrom.children) {
+			draggedNodeFrom.children = draggedNodeFrom.children.filter((node: TreeNode) => node.id !== draggedNode.id);
+		}
+
+		if (draggedNodeFrom === null) {
+			tree = tree.filter((node: TreeNode) => node.id !== draggedNode.id);
+		}
+		draggedNode.filePath = draggedNodeTo?.filePath + `/${draggedNode.name}`;
+		draggedNodeTo?.children.push(draggedNode);
+
+		setTree([...tree]);
+	};
+
+	const handleRootDrop = (e: any) => {
+		const draggedNode = JSON.parse(e.dataTransfer.getData('application/json'));
+		const draggedNodeFrom = findParentNodeById(tree, draggedNode.id);
+		if (!draggedNodeFrom) {
+			return;
+		}
+
+		if (draggedNodeFrom && draggedNodeFrom.children) {
+			draggedNodeFrom.children = draggedNodeFrom.children.filter((node: TreeNode) => node.id !== draggedNode.id);
+		}
+
+		draggedNode.filePath = `./${draggedNode.name}`;
+		setTree([...tree, draggedNode]);
+	};
+
 	useEffect(() => {
-		onFileSelectionChange(currentlySelectedNode);
+		const handleClickOutside = (event: any) => {
+			if (containerRef.current && !containerRef.current.contains(event.target)) {
+				setCurrentlySelectedNode(null);
+				setClickedDiv('');
+			}
+		};
+
+		document.addEventListener('click', handleClickOutside);
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (currentlySelectedNode) onFileSelectionChange(currentlySelectedNode!);
 	}, [currentlySelectedNode]);
 
 	return (
-		<div style={{ color: config.fontColor }}>
-			<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-				<span style={{ marginBlock: 5, padding: 0, marginInline: 15 }}>{config.label}</span>
-				<div
+		<div style={{ color: config.fontColor, height: '100%' }} ref={containerRef}>
+			<div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+				<span
 					style={{
-						width: '30%',
-						alignItems: 'center',
-						display: 'flex',
-						justifyContent: 'space-evenly',
+						marginBlock: 5,
+						padding: 0,
+						marginInline: 15,
+						...(config.headerFontSize ? { fontSize: config.headerFontSize } : { fontSize: 16 }),
 					}}>
-					<VscFolderOpened style={{ height: '20px', width: '20px', cursor: 'pointer' }} onClick={() => createNewNode('Folder')} />
-					<VscNewFile
-						style={{ height: '20px', width: '20px', cursor: 'pointer' }}
-						onClick={() => {
-							createNewNode('File');
-						}}
-					/>
-					<VscCollapseAll style={{ height: '20px', width: '20px', cursor: 'pointer' }} onClick={() => collapseAll()} />
-				</div>
+					{config.label}
+				</span>
+				{!config.disableActions && (
+					<div
+						style={{
+							minWidth: '30%',
+							maxWidth: '100%',
+							alignItems: 'center',
+							display: 'flex',
+							justifyContent: 'space-evenly',
+						}}>
+						<VscFolderOpened style={iconStyle} onClick={() => createNewNode('Folder')} />
+						<VscNewFile
+							style={iconStyle}
+							onClick={() => {
+								createNewNode('File');
+							}}
+						/>
+						<VscCollapseAll style={iconStyle} onClick={() => collapseAll()} />
+					</div>
+				)}
 			</div>
-			<FileTree tree={tree} updateNodeDetails={updateNodeDetails} deleteNode={deleteNode} config={config} iconMap={iconMap} />
+			<div onDrop={(e) => handleRootDrop(e)} onDragOver={(e) => e.preventDefault()} style={{ height: '100%' }}>
+				<FileTree
+					tree={tree}
+					updateNodeDetails={updateNodeDetails}
+					deleteNode={deleteNode}
+					config={config}
+					iconMap={iconMap}
+					handleDrop={handleDrop}
+					clickedDiv={clickedDiv}
+					setClickedDiv={setClickedDiv}
+				/>
+			</div>
 		</div>
 	);
 };

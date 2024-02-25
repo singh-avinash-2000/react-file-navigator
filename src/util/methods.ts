@@ -1,6 +1,6 @@
-import { Tree, File, Folder } from './types';
+import { Tree, FolderNode, TreeNode } from './types';
 
-export const findNodeById = (nodes: Tree, id: string): File | Folder | null => {
+export const findNodeById = (nodes: Tree, id: string): TreeNode | null => {
 	for (const node of nodes) {
 		if (node.id === id) {
 			return node;
@@ -16,7 +16,7 @@ export const findNodeById = (nodes: Tree, id: string): File | Folder | null => {
 	return null;
 };
 
-const findParentNodeById = (fileTree: Tree, fileId: string, parent: Folder | null = null): Folder | null => {
+export const findParentNodeById = (fileTree: Tree, fileId: string, parent: FolderNode | null = null): FolderNode | null => {
 	for (const node of fileTree) {
 		if (node.id === fileId) {
 			return parent;
@@ -33,7 +33,7 @@ const findParentNodeById = (fileTree: Tree, fileId: string, parent: Folder | nul
 };
 
 export const collapseAllNodes = (tree: Tree): Tree => {
-	return tree.map((item: File | Folder): File | Folder => {
+	return tree.map((item: TreeNode): TreeNode => {
 		if (item.type === 'Folder') {
 			return {
 				...item,
@@ -46,7 +46,7 @@ export const collapseAllNodes = (tree: Tree): Tree => {
 	});
 };
 
-export const addNewNode = (nodes: Tree, currentlySelected: File | Folder | null, newEntry: File | Folder): void => {
+export const addNewNode = (nodes: Tree, currentlySelected: TreeNode | null, newEntry: TreeNode): void => {
 	if (!currentlySelected) {
 		newEntry.filePath = './' + newEntry.name;
 		nodes.push(newEntry);
@@ -54,8 +54,7 @@ export const addNewNode = (nodes: Tree, currentlySelected: File | Folder | null,
 	}
 
 	// when selected node is file we add the new node to the parent folder and when its a folder we add to that selected node
-	const parentFolder =
-		currentlySelected.type === 'File' ? findParentNodeById(nodes, currentlySelected.id) : (findNodeById(nodes, currentlySelected.id) as Folder);
+	const parentFolder = getTargetNodeBasedOnType(currentlySelected, nodes);
 
 	if (parentFolder) {
 		newEntry.filePath = parentFolder.filePath + '/' + newEntry.name;
@@ -75,7 +74,13 @@ export const deleteNodeById = (files: Tree, fileId: string) => {
 		const node = files[i];
 
 		if (node.id === fileId) {
-			files.splice(i, 1);
+			let response = true;
+			if (node.type === 'Folder' && node.children.length > 0) {
+				response = confirm('This folder is not empty, you might want to reconsider');
+			}
+			if (response) {
+				files.splice(i, 1);
+			}
 			return true;
 		}
 
@@ -88,6 +93,10 @@ export const deleteNodeById = (files: Tree, fileId: string) => {
 	}
 
 	return false;
+};
+
+export const getTargetNodeBasedOnType = (node: TreeNode, tree: Tree): FolderNode | null => {
+	return node.type === 'File' ? findParentNodeById(tree, node.id) : (findNodeById(tree, node.id) as FolderNode);
 };
 
 export const generateRandomIntID = () => {
