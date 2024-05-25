@@ -99,6 +99,23 @@ export const getTargetNodeBasedOnType = (node: TreeNode, tree: Tree): FolderNode
 	return node.type === 'File' ? findParentNodeById(tree, node.id) : (findNodeById(tree, node.id) as FolderNode);
 };
 
+export const isChildrenOfNode = (node: TreeNode, nodeId: string): boolean => {
+	if (!node.children) {
+		return false;
+	}
+
+	for (const child of node.children) {
+		if (child.id === nodeId) {
+			return true;
+		}
+		if (isChildrenOfNode(child, nodeId)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 export const generateRandomIntID = () => {
 	return `${Math.ceil(Math.random() * 9999999999999999)}`;
 };

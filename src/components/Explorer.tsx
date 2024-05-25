@@ -9,6 +9,7 @@ import {
 	findParentNodeById,
 	generateRandomIntID,
 	getTargetNodeBasedOnType,
+	isChildrenOfNode,
 } from '../util/methods';
 import FileTree from './FileTree';
 import { useExplorerContext } from '../context/useExplorerContext';
@@ -72,10 +73,7 @@ const Explorer: React.FC<ExplorerProps> = ({
 		setTree([...tree]);
 	};
 
-	const iconStyle = useMemo(
-		() => ({ cursor: 'pointer', ...(config.headerIconSize ? { fontSize: config.headerIconSize } : { fontSize: 20 }) }),
-		[config.headerIconSize]
-	);
+	const iconStyle = { cursor: 'pointer', ...(config.headerIconSize ? { fontSize: config.headerIconSize } : { fontSize: 20 }) };
 
 	const handleDrop = (e: any, node: TreeNode) => {
 		e.stopPropagation();
@@ -84,7 +82,10 @@ const Explorer: React.FC<ExplorerProps> = ({
 		const draggedNode = JSON.parse(e.dataTransfer.getData('application/json'));
 		const draggedNodeTo = getTargetNodeBasedOnType(node, tree);
 		const draggedNodeFrom = findParentNodeById(tree, draggedNode.id);
+		const isChildOfDraggedNode = isChildrenOfNode(draggedNode, draggedNodeTo?.id!);
+		if (isChildOfDraggedNode) return;
 		if (node.id === draggedNodeFrom?.id) return;
+		if (draggedNode.id === draggedNodeTo?.id) return;
 
 		if (draggedNodeFrom && draggedNodeFrom.children) {
 			draggedNodeFrom.children = draggedNodeFrom.children.filter((node: TreeNode) => node.id !== draggedNode.id);

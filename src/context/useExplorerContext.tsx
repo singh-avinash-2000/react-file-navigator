@@ -1,21 +1,25 @@
 import React, { createContext, useContext, useState } from 'react';
-import { TreeNode } from '../util/types';
+import { Tree, TreeNode } from '../util/types';
 
 interface ExplorerContextProps {
 	currentlySelectedNode: TreeNode | null;
-	setCurrentlySelectedNode: React.Dispatch<React.SetStateAction<TreeNode | null>>;
 	isRenameSelected: boolean;
-	setIsRenameSelected: React.Dispatch<React.SetStateAction<boolean>>;
 	renameNodeId: string | null;
+	tree: Tree;
+	setTree: React.Dispatch<React.SetStateAction<Tree>>;
+	setIsRenameSelected: React.Dispatch<React.SetStateAction<boolean>>;
+	setCurrentlySelectedNode: React.Dispatch<React.SetStateAction<TreeNode | null>>;
 	setRenameNodeId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const defaultValue: ExplorerContextProps = {
+	tree: [],
 	currentlySelectedNode: null,
-	setCurrentlySelectedNode: () => {},
 	isRenameSelected: false,
-	setIsRenameSelected: () => {},
 	renameNodeId: null,
+	setCurrentlySelectedNode: () => {},
+	setIsRenameSelected: () => {},
+	setTree: () => {},
 	setRenameNodeId: () => {},
 };
 
@@ -25,13 +29,16 @@ export const ExplorerContextProvider = ({ children }: { children: any }) => {
 	const [currentlySelectedNode, setCurrentlySelectedNode] = useState<TreeNode | null>(null);
 	const [isRenameSelected, setIsRenameSelected] = useState<boolean>(false);
 	const [renameNodeId, setRenameNodeId] = useState<string | null>(null);
+	const [tree, setTree] = useState<Tree>([]);
 
 	const value: ExplorerContextProps = {
 		currentlySelectedNode,
-		setCurrentlySelectedNode,
 		isRenameSelected,
-		setIsRenameSelected,
 		renameNodeId,
+		tree,
+		setTree,
+		setIsRenameSelected,
+		setCurrentlySelectedNode,
 		setRenameNodeId,
 	};
 
