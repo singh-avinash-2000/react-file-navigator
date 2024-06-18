@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import IconMapComponent from './IconMap';
 import { useExplorerContext } from '../context/useExplorerContext';
 import { FolderNode, Tree, FileNode, ExplorerConfig, IconMap, TreeNode } from '../util/types';
@@ -25,6 +25,7 @@ const FileTree: React.FC<FileTreeProps> = React.memo(
 		const { setCurrentlySelectedNode, renameNodeId, isRenameSelected, currentlySelectedNode, setRenameNodeId, setIsRenameSelected } =
 			useExplorerContext();
 
+		const [mouseOverNode, setMouseOverNode] = useState<string | null>(null);
 		const renameInputRef = useRef<HTMLInputElement | null>(null);
 		const handleSingleClick = (node: TreeNode, idx: number) => {
 			if (renameNodeId === node.id) return;
@@ -123,7 +124,7 @@ const FileTree: React.FC<FileTreeProps> = React.memo(
 		}, [isRenameSelected]);
 
 		return (
-			<div draggable>
+			<div draggable style={{ color: config.fontColor ?? 'black', fontSize: config.fontSize ?? '14px' }}>
 				{tree.map((node: TreeNode, index: number) => {
 					return (
 						<div
@@ -140,10 +141,13 @@ const FileTree: React.FC<FileTreeProps> = React.memo(
 									width: '100%',
 									...(clickedDiv === node.id ? { border: '1px solid blue' } : {}),
 									...(currentlySelectedNode?.id === node.id ? { backgroundColor: config.accentColor ? `${config.accentColor}` : 'lavender' } : {}),
+									...(mouseOverNode === node.id ? { backgroundColor: config.accentColor ? `${config.accentColor}` : 'lavender' } : {}),
 								}}
 								tabIndex={1}
 								onClick={() => handleSingleClick(node, index)}
 								onDoubleClick={() => handleDoubleClick(node)}
+								onMouseEnter={() => setMouseOverNode(node.id)}
+								onMouseLeave={() => setMouseOverNode(null)}
 								onKeyDown={(e) => enableRenameAndDeleteForSelectedNode(e, node)}>
 								{isRenameSelected && node.id === renameNodeId ? (
 									<input
