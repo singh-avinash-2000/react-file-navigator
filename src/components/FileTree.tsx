@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import IconMapComponent from './IconMap';
 import { useExplorerContext } from '../context/useExplorerContext';
-import { FolderNode, Tree, FileNode, ExplorerConfig, IconMap, TreeNode } from '../util/types';
+import { Tree, ExplorerConfig, IconMap, TreeNode } from '../util/types';
 
 interface FileTreeProps {
 	tree: Tree;
