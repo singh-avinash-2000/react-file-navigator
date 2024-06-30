@@ -28,7 +28,7 @@ Or if you use Yarn:
 yarn add react-file-navigator
 ```
 
-![Project Screenshot](images/explorer.png)
+![Demo Screenshot](images/explorer.png)
 
 ## Usage
 
