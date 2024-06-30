@@ -1,6 +1,6 @@
 {
   "name": "react-file-navigator",
-  "version": "2.0.0-dev.1",
+  "version": "1.0.1-dev.1",
   "description": "A React component to render a file explorer with features similar to VSCode.",
   "main": "dist/index.js",
   "module": "dist/index.js",

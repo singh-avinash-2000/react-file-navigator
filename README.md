@@ -1,139 +1,183 @@
 # React File Navigator
 
-React File Navigator is a React component that provides a file explorer UI with features similar to VSCode. It allows you to render a file tree structure and interact with files and folders.
+## Introduction
 
-For queries / feature request reachout : workwith.avinashsingh@gmail.com
+React File Navigator allows you to integrate a file system navigator into your React applications. It provides a customizable and interactive hierarchical view of files and folders, complete with icons and configurable actions.
+
+For queries reachout : workwith.avinashsingh@gmail.com
+
+## Features
+
+- Render a hierarchical tree structure of files and folders.
+- Customizable icons for file types and folder states.
+- Configurable actions and callbacks for file and folder interaction.
+- Easily integrate with modern React applications.
+- Drag Drop to rearrange structure.
 
 ## Installation
 
-You can install React File Navigator via npm:
+To install the package, run the following command in your project directory:
 
-```
+```bash
 npm install react-file-navigator
 ```
 
-or with yarn:
+Or if you use Yarn:
 
-```
+```bash
 yarn add react-file-navigator
 ```
 
+![Project Screenshot](images/explorer.png)
+
 ## Usage
 
-```
+### Import Components
+
+Import the necessary components and hooks into your React component:
+
+```jsx
 import React, { useState } from 'react';
 import { IoLogoReact, IoDocumentText } from 'react-icons/io5';
-import { IoLogoJavascript } from 'react-icons/io';
 import { DownOutlined, RightOutlined } from '@ant-design/icons';
-
 import { Explorer, IconMap, Tree, TreeNode } from 'react-file-navigator';
+```
 
+### Define the File System Structure
+
+Define your initial file system structure using the Tree and TreeNode types:
+
+```jsx
+const initialTree: Tree = [
+	{
+		id: '1',
+		type: 'Folder',
+		name: 'Root',
+		filePath: '/root',
+		expanded: true,
+		icon: 'folderExpanded',
+		children: [
+			{
+				id: '2',
+				type: 'File',
+				filePath: '/root/main.tsx',
+				extension: 'tsx',
+				icon: 'tsx',
+				name: 'main.tsx',
+			},
+		],
+	},
+];
+```
+
+### Set Up the Explorer Component
+
+Use the Explorer component in your application with the defined tree structure:
+
+```jsx
 const App: React.FC = () => {
-	const [tree, setTree] = useState<Tree>([]);
-	const handleFileSelectionChange = (_selectedFile: TreeNode | null) => {
-		console.log(_selectedFile);
+	const [tree, setTree] = useState < Tree > initialTree;
+
+	const handleFileSelectionChange = (selectedNode: TreeNode | null) => {
+		console.log('Selected file:', selectedNode);
 	};
 
 	const iconMap: IconMap = {
-		default: <IoDocumentText />, // required
-		folderCollapsed: <RightOutlined />, // required
-		folderExpanded: <DownOutlined />, // required
+		default: <IoDocumentText />,
+		folderCollapsed: <RightOutlined />,
+		folderExpanded: <DownOutlined />,
 		tsx: <IoLogoReact />,
-		jsx: <IoLogoReact />,
-		js: <IoLogoJavascript />,
 	};
 
-	return <Explorer tree={tree} setTree={setTree} onFileSelectionChange={handleFileSelectionChange} iconMap={iconMap} />;
+	return (
+		<div style={{ height: '100vh' }}>
+			<Explorer
+				tree={tree}
+				setTree={setTree}
+				iconMap={iconMap}
+				onFileSelectionChange={handleFileSelectionChange}
+				config={{
+					accentColor: 'lavender',
+					fontColor: 'black',
+					label: 'File System',
+				}}
+			/>
+		</div>
+	);
 };
 
 export default App;
 ```
 
-## Props
+## Type Definitions
 
-### tree
+### Tree
 
-    Type: TreeNode[]
-    Description: An array representing the file tree structure. Each element can be either a FileNode or a FolderNode.
-
-### setTree
-
-    Type: React.Dispatch<React.SetStateAction<Tree>> // useState's state setter
-    Description: A function to update the file tree structure.
-
-### onFileSelectionChange
-
-    Type: (node: TreeNode | null) => any
-    Description: A callback function that is called when ever file folder selection changes in the file explorer.
-
-### iconMap
-
-    Type: IconMap
-    Description: An object mapping file extensions to React icons. You can provide custom icons for different file types. Will be picked from icon property of TreeNode
-
-### config
-
-    Type: ExplorerConfig
-    Description: Configuration options for the file explorer component.
-
-## Types
+Array of TreeNode objects representing the file system.
 
 ### TreeNode
 
-```
-    FileNode | FolderNode
-```
+Union type of FileNode and FolderNode, representing individual nodes in the file system.
 
 ### FileNode
 
-```
-    id: string;
+Represents a file in the tree:
+
+```typescript
+interface FileNode {
+	id: string;
 	type: 'File';
 	filePath: string;
 	extension: string;
 	icon: string;
 	name: string;
-	[key: string]: any;
+}
 ```
 
 ### FolderNode
 
-```
-    id: string;
+Represents a folder in the tree:
+
+```typescript
+interface FolderNode {
+	id: string;
 	type: 'Folder';
 	filePath: string;
 	expanded: boolean;
 	icon: 'folderCollapsed' | 'folderExpanded';
 	name: string;
 	children: TreeNode[];
-	[key: string]: any;
+}
 ```
 
-### ExplorerProps
+### IconMap
 
-```
-    tree: Tree;
-	setTree: React.Dispatch<React.SetStateAction<Tree>>;
-	config: ExplorerConfig; //optional
-	iconMap: IconMap;
-	onFileSelectionChange: (node: TreeNode | null) => any;
+Object defining the icons used for different file types and folder states:
+
+```typescript
+type IconMap = {
+	default: React.ReactNode;
+	folderCollapsed: React.ReactNode;
+	folderExpanded: React.ReactNode;
+	[extension: string]: React.ReactNode;
+};
 ```
 
 ### ExplorerConfig
 
-```
-    label: string;
-	rename: 'DoubleClick' | 'Enter' | 'Both';
-	delete: 'Delete' | 'CMD + Backspace' | 'Both';
-	fontColor: string;
-	accentColor: string;
-	headerFontSize: string;
-	headerIconSize: string;
-	fontSize: string;
-	iconSize: string;
-	disableActions: boolean;
-```
+Configuration options for customizing the file navigator:
 
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+```typescript
+interface ExplorerConfig {
+	label?: string;
+	rename?: 'DoubleClick' | 'Enter' | 'Both';
+	delete?: 'Delete' | 'CMD + Backspace' | 'Both';
+	fontColor?: string;
+	accentColor?: string;
+	headerFontSize?: string;
+	headerIconSize?: string;
+	fontSize?: string;
+	iconSize?: string;
+	disableActions?: boolean;
+}
+```
