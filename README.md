@@ -2,7 +2,7 @@
 
 ## Introduction
 
-React File Navigator allows you to integrate a file system navigator into your React applications. It provides a customizable and interactive hierarchical view of files and folders, complete with icons and configurable actions.
+React File Navigator allows you to integrate a file system navigator into your React applications. It provides a customizable and interactive hierarchical view of files and folders, complete with icons and configurable actions with drag and drop support.
 
 For queries reachout : workwith.avinashsingh@gmail.com
 
@@ -47,7 +47,7 @@ import { Explorer, IconMap, Tree, TreeNode } from 'react-file-navigator';
 
 Define your initial file system structure using the Tree and TreeNode types:
 
-```jsx
+```tsx
 const initialTree: Tree = [
 	{
 		id: '1',
@@ -74,7 +74,7 @@ const initialTree: Tree = [
 
 Use the Explorer component in your application with the defined tree structure:
 
-```jsx
+```tsx
 const App: React.FC = () => {
 	const [tree, setTree] = useState < Tree > initialTree;
 
